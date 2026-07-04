@@ -1,0 +1,92 @@
+{% extends 'layout.html' %}
+{% block title %}Artistas — Emysic{% endblock %}
+{% block topbar_title %}Catálogo de Artistas{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="page-heading">Artistas</h1>
+        <p class="page-subheading">Alta, baja y cambios de artistas de la plataforma.</p>
+    </div>
+    <a href="{{ url_for('artista_nuevo') }}" class="btn btn-danger"
+       style="border-radius:8px;">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo artista
+    </a>
+</div>
+
+<!-- Buscador -->
+<div class="mb-3" style="max-width:300px;">
+    <div class="position-relative">
+        <input type="text" id="buscador" class="form-control"
+               placeholder="Buscar artista..."
+               oninput="filtrarTabla('buscador','tabla-artistas')">
+        <i class="bi bi-search" style="position:absolute;left:.75rem;top:50%;
+           transform:translateY(-50%);color:#888;font-size:.85rem;"></i>
+    </div>
+</div>
+
+<!-- Tabla -->
+<div class="em-card p-0" style="overflow:hidden;">
+    <table class="table table-dark table-hover mb-0" id="tabla-artistas">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Artista</th>
+                <th>Género</th>
+                <th>País</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for a in artistas %}
+            <tr>
+                <td style="color:var(--em-muted);">{{ a[0] }}</td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:32px;height:32px;border-radius:50%;
+                                    background:rgba(255,0,0,.15);
+                                    display:flex;align-items:center;justify-content:center;
+                                    color:var(--em-red);flex-shrink:0;">
+                            <i class="bi bi-music-note" style="font-size:.85rem;"></i>
+                        </div>
+                        <strong>{{ a[1] }}</strong>
+                    </div>
+                </td>
+                <td style="color:var(--em-muted);">{{ a[2] or '—' }}</td>
+                <td style="color:var(--em-muted);">{{ a[3] or '—' }}</td>
+                <td>
+                    {% if a[4] %}
+                        <span class="badge-em-active"><i class="bi bi-check-circle me-1"></i>Activo</span>
+                    {% else %}
+                        <span class="badge-em-inactive"><i class="bi bi-x-circle me-1"></i>Inactivo</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('artista_editar', aid=a[0]) }}"
+                       class="icon-btn" title="Editar" style="width:32px;height:32px;font-size:.85rem;">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <form id="del-a-{{ a[0] }}" method="POST"
+                          action="{{ url_for('artista_eliminar', aid=a[0]) }}" style="display:inline;">
+                        <button type="button"
+                                onclick="confirmarEliminar('del-a-{{ a[0] }}','{{ a[1] }}')"
+                                class="icon-btn" title="Desactivar"
+                                style="width:32px;height:32px;font-size:.85rem;
+                                       color:#ef4444;border-color:#ef444433;">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center py-4" style="color:var(--em-muted);">
+                    Sin artistas registrados.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'layout.html' %}
+{% block title %}Dashboard — Emysic{% endblock %}
+{% block topbar_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="page-heading">Dashboard</h1>
+    <p class="page-subheading">Bienvenido al panel de Emysic, {{ username }}.</p>
+</div>
+
+<!-- Tarjetas de estadísticas -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+            <div>
+                <div class="stat-value">{{ total_usuarios }}</div>
+                <div class="stat-label">Usuarios activos</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-music-note-beamed"></i></div>
+            <div>
+                <div class="stat-value">{{ total_artistas }}</div>
+                <div class="stat-label">Artistas activos</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-clock-history"></i></div>
+            <div>
+                <div class="stat-value">
+                    {{ token_minutos }}
+                    <span style="font-size:1rem;color:var(--em-muted);">min</span>
+                </div>
+                <div class="stat-label">Vida del token (configurable)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Accesos rápidos -->
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="em-card">
+            <h6 style="color:var(--em-muted);font-size:.75rem;text-transform:uppercase;
+                        letter-spacing:.08em;margin-bottom:.75rem;">
+                <i class="bi bi-people-fill text-em-red me-1"></i>
+                Catálogo de Usuarios
+            </h6>
+            <p style="font-size:.88rem;color:var(--em-muted);margin-bottom:1rem;">
+                Gestiona los usuarios del sistema: altas, bajas y modificaciones.
+            </p>
+            <a href="{{ url_for('usuarios') }}" class="btn btn-danger btn-sm"
+               style="border-radius:8px;">
+                <i class="bi bi-arrow-right-circle me-1"></i> Ir al catálogo
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="em-card">
+            <h6 style="color:var(--em-muted);font-size:.75rem;text-transform:uppercase;
+                        letter-spacing:.08em;margin-bottom:.75rem;">
+                <i class="bi bi-music-note-beamed text-em-red me-1"></i>
+                Catálogo de Artistas
+            </h6>
+            <p style="font-size:.88rem;color:var(--em-muted);margin-bottom:1rem;">
+                Administra los artistas de la plataforma: nombre, género y país.
+            </p>
+            <a href="{{ url_for('artistas') }}" class="btn btn-danger btn-sm"
+               style="border-radius:8px;">
+                <i class="bi bi-arrow-right-circle me-1"></i> Ir al catálogo
+            </a>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="em-card">
+            <h6 style="color:var(--em-muted);font-size:.75rem;text-transform:uppercase;
+                        letter-spacing:.08em;margin-bottom:.75rem;">
+                <i class="bi bi-shield-lock-fill text-em-red me-1"></i>
+                Token de Sesión
+            </h6>
+            <p style="font-size:.88rem;color:var(--em-muted);">
+                El indicador <strong style="color:#f0f0f0;">▶ 00:00</strong> en la barra superior
+                muestra el tiempo restante. El sistema verifica la sesión automáticamente
+                cada <strong style="color:#f0f0f0;">2 minutos</strong>.
+                Haz clic en el indicador para renovar manualmente.
+                Configura el tiempo en
+                <a href="{{ url_for('config') }}" style="color:var(--em-red);">
+                    Configuración del sistema
+                </a>.
+            </p>
+            <button onclick="renovarManual()" class="btn btn-sm"
+                    style="background:var(--em-surface);border:1px solid var(--em-border);
+                           color:var(--em-text);border-radius:8px;margin-top:.5rem;">
+                <i class="bi bi-arrow-clockwise me-1"></i> Renovar ahora
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'layout.html' %}
+{% block title %}{{ accion }} Usuario — Emysic{% endblock %}
+{% block topbar_title %}{{ accion }} Usuario{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{{ url_for('usuarios') }}" class="icon-btn" title="Volver"
+       style="width:36px;height:36px;">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h1 class="page-heading">{{ accion }} Usuario</h1>
+    </div>
+</div>
+
+<div class="em-card" style="max-width:580px;">
+
+    {% if error %}
+    <div class="alert-em mb-3">
+        <i class="bi bi-exclamation-circle me-2"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label">
+                <i class="bi bi-person me-1"></i> Nombre de usuario *
+            </label>
+            <input type="text" name="username" class="form-control"
+                   value="{{ usuario[1] if usuario else '' }}"
+                   {{ 'readonly' if usuario else '' }}
+                   required placeholder="ej. jperez">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">
+                <i class="bi bi-envelope me-1"></i> Email *
+            </label>
+            <input type="email" name="email" class="form-control"
+                   value="{{ usuario[2] if usuario else '' }}"
+                   required placeholder="correo@ejemplo.com">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">
+                <i class="bi bi-lock me-1"></i>
+                Contraseña {% if usuario %}(dejar vacío para no cambiar){% else %}*{% endif %}
+            </label>
+            <div class="position-relative">
+                <input type="password" name="password" id="password" class="form-control"
+                       {{ '' if usuario else 'required' }}
+                       placeholder="{{ '••••••••' if usuario else 'Mínimo 8 caracteres' }}">
+                <button type="button" onclick="togglePw('password','toggle-pw')"
+                        style="position:absolute;right:10px;top:50%;transform:translateY(-50%);
+                               background:none;border:none;color:#888;cursor:pointer;">
+                    <i class="bi bi-eye" id="toggle-pw"></i>
+                </button>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">
+                <i class="bi bi-shield me-1"></i> Rol *
+            </label>
+            <select name="rol" class="form-select">
+                {% for r in ['admin','editor','viewer'] %}
+                <option value="{{ r }}"
+                    {{ 'selected' if usuario and usuario[3] == r }}>
+                    {{ r.capitalize() }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% if usuario %}
+        <div class="mb-4">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="lActivo"
+                       id="lActivo" {{ 'checked' if usuario[4] }}
+                       style="background-color:#111;border-color:#2e2e2e;">
+                <label class="form-check-label form-label mb-0" for="lActivo">
+                    Usuario activo
+                </label>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger"
+                    style="border-radius:8px;padding:.55rem 1.4rem;">
+                <i class="bi bi-check-lg me-1"></i> {{ accion }}
+            </button>
+            <a href="{{ url_for('usuarios') }}" class="btn btn-sm"
+               style="background:var(--em-surface);border:1px solid var(--em-border);
+                      color:var(--em-text);border-radius:8px;padding:.55rem 1.2rem;">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'layout.html' %}
+{% block title %}{{ accion }} Artista — Emysic{% endblock %}
+{% block topbar_title %}{{ accion }} Artista{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{{ url_for('artistas') }}" class="icon-btn" title="Volver"
+       style="width:36px;height:36px;">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h1 class="page-heading">{{ accion }} Artista</h1>
+    </div>
+</div>
+
+<div class="em-card" style="max-width:580px;">
+
+    {% if error %}
+    <div class="alert-em mb-3">
+        <i class="bi bi-exclamation-circle me-2"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label">
+                <i class="bi bi-music-note me-1"></i> Nombre del artista *
+            </label>
+            <input type="text" name="nombre" class="form-control"
+                   value="{{ artista[1] if artista else '' }}"
+                   required placeholder="ej. Bad Bunny">
+        </div>
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">
+                    <i class="bi bi-tag me-1"></i> Género musical
+                </label>
+                <input type="text" name="genero" class="form-control"
+                       value="{{ artista[2] if artista else '' }}"
+                       placeholder="ej. Reggaeton, Pop...">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">
+                    <i class="bi bi-geo-alt me-1"></i> País de origen
+                </label>
+                <input type="text" name="pais" class="form-control"
+                       value="{{ artista[3] if artista else '' }}"
+                       placeholder="ej. México">
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">
+                <i class="bi bi-card-text me-1"></i> Biografía
+            </label>
+            <textarea name="bio" class="form-control" rows="3"
+                      placeholder="Breve descripción del artista...">{{ artista[4] if artista else '' }}</textarea>
+        </div>
+        {% if artista %}
+        <div class="mb-4">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="lActivo"
+                       id="lActivo" {{ 'checked' if artista[5] }}
+                       style="background-color:#111;border-color:#2e2e2e;">
+                <label class="form-check-label form-label mb-0" for="lActivo">
+                    Artista activo
+                </label>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger"
+                    style="border-radius:8px;padding:.55rem 1.4rem;">
+                <i class="bi bi-check-lg me-1"></i> {{ accion }}
+            </button>
+            <a href="{{ url_for('artistas') }}" class="btn btn-sm"
+               style="background:var(--em-surface);border:1px solid var(--em-border);
+                      color:var(--em-text);border-radius:8px;padding:.55rem 1.2rem;">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
