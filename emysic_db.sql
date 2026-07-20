@@ -1,7 +1,12 @@
-USE emysic_db;
-ALTER TABLE usuario 
-MODIFY COLUMN rol ENUM('admin','editor','viewer') NOT NULL DEFAULT 'viewer';
+CREATE DATABASE IF NOT EXISTS emysic_db
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
+USE emysic_db;
+
+-- ------------------------------------------------------------
+-- 1. Configuración del sistema
+-- ------------------------------------------------------------
 DROP TABLE IF EXISTS config_sistema;
 CREATE TABLE config_sistema (
     id          INT AUTO_INCREMENT PRIMARY KEY,
@@ -11,9 +16,9 @@ CREATE TABLE config_sistema (
 );
 
 INSERT INTO config_sistema (clave, valor, descripcion) VALUES
-  ('TOKEN_MINUTOS', '30',    'Tiempo de vida del token en minutos'),
+  ('TOKEN_MINUTOS', '30',     'Tiempo de vida del token en minutos'),
   ('APP_NOMBRE',    'Emysic', 'Nombre de la aplicación'),
-  ('MAX_INTENTOS',  '5',     'Intentos máximos de login');
+  ('MAX_INTENTOS',  '5',      'Intentos máximos de login');
 
 -- ------------------------------------------------------------
 -- 2. Usuarios del sistema
@@ -50,11 +55,12 @@ CREATE TABLE artista (
 );
 
 INSERT INTO artista (nombre, genero, pais, bio) VALUES
-  ('Billie Eilish',  'Pop / R&B',          'EE.UU.',       'Cantautora multiganadora del Grammy, conocida por su estilo oscuro y minimalista.'),
-  ('Arctic Monkeys', 'Rock / Alternativo',  'Reino Unido',  'Banda británica referente del rock alternativo moderno.'),
-  ('BTS',            'K-Pop',              'Corea del Sur', 'Grupo de K-Pop más influyente a nivel mundial con millones de fanáticos.'),
-  ('Dua Lipa',       'Pop / Electrónica',   'Reino Unido',  'Cantante reconocida por sus éxitos de pop dance a nivel global.'),
-  ('Kendrick Lamar', 'Hip-Hop',            'EE.UU.',       'Rapero ganador del Premio Pulitzer, considerado uno de los mejores del género.');
+  ('Billie Eilish',  'Pop / R&B',         'EE.UU.',       'Cantautora multiganadora del Grammy, conocida por su estilo oscuro y minimalista.'),
+  ('Arctic Monkeys', 'Rock / Alternativo', 'Reino Unido',  'Banda británica referente del rock alternativo moderno.'),
+  ('BTS',            'K-Pop',             'Corea del Sur', 'Grupo de K-Pop más influyente a nivel mundial con millones de fanáticos.'),
+  ('Dua Lipa',       'Pop / Electrónica',  'Reino Unido',  'Cantante reconocida por sus éxitos de pop dance a nivel global.'),
+  ('Kendrick Lamar', 'Hip-Hop',           'EE.UU.',       'Rapero ganador del Premio Pulitzer, considerado uno de los mejores del género.'),
+  ('Coldplay',       'Rock / Pop',        'Reino Unido',  'Banda británica reconocida mundialmente por sus emotivos conciertos y éxitos globales.');
 
 -- ------------------------------------------------------------
 -- 4. Tokens de sesión
@@ -62,10 +68,10 @@ INSERT INTO artista (nombre, genero, pais, bio) VALUES
 DROP TABLE IF EXISTS token;
 CREATE TABLE token (
     id        INT AUTO_INCREMENT PRIMARY KEY,
-    idUsuario INT         NOT NULL,
-    cValor    VARCHAR(32) NOT NULL UNIQUE,
+    idUsuario INT          NOT NULL,
+    cValor    VARCHAR(32)  NOT NULL UNIQUE,
     cadena    VARCHAR(255) NOT NULL,
-    dFecha    DATETIME    NOT NULL,
-    lActivo   TINYINT(1) NOT NULL DEFAULT 1,
+    dFecha    DATETIME     NOT NULL,
+    lActivo   TINYINT(1)  NOT NULL DEFAULT 1,
     FOREIGN KEY (idUsuario) REFERENCES usuario(id) ON DELETE CASCADE
 );

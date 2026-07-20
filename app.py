@@ -8,10 +8,10 @@ app = Flask(__name__)
 app.secret_key = "emysic_sm_2026"
 
 # ── MySQL ────────────────────────────────────────────────────
-app.config['MYSQL_HOST']     = 'localhost'
-app.config['MYSQL_USER']     = 'root'
-app.config['MYSQL_PASSWORD'] = 'Suemy2882!'
-app.config['MYSQL_DB']       = 'emysic_db'
+app.config['MYSQL_HOST']     = 'Suemy.mysql.pythonanywhere-services.com'
+app.config['MYSQL_USER']     = 'Suemy'
+app.config['MYSQL_PASSWORD'] = 'Emysic282026!'
+app.config['MYSQL_DB']       = 'Suemy$emysic_db'
 app.config['MYSQL_PORT']     = 3306
 
 mysql = MySQL(app)

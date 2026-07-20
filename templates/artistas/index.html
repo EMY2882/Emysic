@@ -14,14 +14,43 @@
     </a>
 </div>
 
+<!-- Mini reproductor flotante -->
+<div id="mini-player" style="display:none; position:fixed; bottom:1.5rem; right:1.5rem;
+     z-index:9999; background:#1a1a1a; border:1px solid #2e2e2e; border-radius:16px;
+     padding:1rem 1.25rem; min-width:280px; box-shadow:0 8px 32px rgba(0,0,0,.6);">
+    <div class="d-flex align-items-center gap-3 mb-2">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,0,0,.15);
+                    display:flex;align-items:center;justify-content:center;color:#FF0000;flex-shrink:0;">
+            <i class="bi bi-music-note-beamed"></i>
+        </div>
+        <div style="flex:1;min-width:0;">
+            <div id="player-artista" style="font-weight:600;font-size:.9rem;
+                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div>
+            <div id="player-cancion" style="font-size:.75rem;color:#888;
+                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div>
+        </div>
+        <button onclick="cerrarPlayer()" style="background:none;border:none;
+                color:#888;font-size:1.1rem;cursor:pointer;padding:0;">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <audio id="audio-player" controls style="width:100%;height:32px;accent-color:#FF0000;">
+        Tu navegador no soporta audio.
+    </audio>
+    <div id="player-estado" style="font-size:.72rem;color:#888;margin-top:.4rem;text-align:center;">
+        Preview de 30 seg — iTunes API
+    </div>
+</div>
+
 <!-- Buscador -->
 <div class="mb-3" style="max-width:300px;">
     <div class="position-relative">
         <input type="text" id="buscador" class="form-control"
                placeholder="Buscar artista..."
-               oninput="filtrarTabla('buscador','tabla-artistas')">
+               oninput="filtrarTabla('buscador','tabla-artistas')"
+               style="padding-left:2.2rem;">
         <i class="bi bi-search" style="position:absolute;left:.75rem;top:50%;
-           transform:translateY(-50%);color:#888;font-size:.85rem;"></i>
+           transform:translateY(-50%);color:#888;font-size:.85rem;pointer-events:none;"></i>
     </div>
 </div>
 
@@ -35,6 +64,7 @@
                 <th>Género</th>
                 <th>País</th>
                 <th>Estado</th>
+                <th>Preview</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -63,8 +93,17 @@
                     {% endif %}
                 </td>
                 <td>
+                    <button onclick="reproducirPreview('{{ a[1] }}')"
+                            class="icon-btn" title="Reproducir preview"
+                            style="width:32px;height:32px;font-size:.85rem;
+                                   color:#22c55e;border-color:#22c55e33;">
+                        <i class="bi bi-play-circle-fill"></i>
+                    </button>
+                </td>
+                <td>
                     <a href="{{ url_for('artista_editar', aid=a[0]) }}"
-                       class="icon-btn" title="Editar" style="width:32px;height:32px;font-size:.85rem;">
+                       class="icon-btn" title="Editar"
+                       style="width:32px;height:32px;font-size:.85rem;">
                         <i class="bi bi-pencil"></i>
                     </a>
                     <form id="del-a-{{ a[0] }}" method="POST"
@@ -81,7 +120,7 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="6" class="text-center py-4" style="color:var(--em-muted);">
+                <td colspan="7" class="text-center py-4" style="color:var(--em-muted);">
                     Sin artistas registrados.
                 </td>
             </tr>
@@ -89,4 +128,53 @@
         </tbody>
     </table>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function reproducirPreview(nombreArtista) {
+    const estado  = document.getElementById('player-estado');
+    const player  = document.getElementById('mini-player');
+    const audio   = document.getElementById('audio-player');
+    const artista = document.getElementById('player-artista');
+    const cancion = document.getElementById('player-cancion');
+
+    // Mostrar player con estado de carga
+    player.style.display = 'block';
+    artista.textContent  = nombreArtista;
+    cancion.textContent  = 'Buscando...';
+    estado.textContent   = 'Conectando con iTunes API...';
+    audio.src = '';
+
+    try {
+        const url = `https://itunes.apple.com/search?term=${encodeURIComponent(nombreArtista)}&media=music&limit=5&entity=song`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+
+        // Buscar resultado con preview disponible
+        const resultado = data.results.find(r => r.previewUrl);
+
+        if (!resultado) {
+            estado.textContent = '⚠ No hay preview disponible para este artista.';
+            return;
+        }
+
+        cancion.textContent = resultado.trackName;
+        audio.src           = resultado.previewUrl;
+        estado.textContent  = 'Preview 30 seg — iTunes API ✓';
+        audio.play();
+
+    } catch(e) {
+        estado.textContent = '⚠ Error al conectar con iTunes API.';
+    }
+}
+
+function cerrarPlayer() {
+    const audio  = document.getElementById('audio-player');
+    const player = document.getElementById('mini-player');
+    audio.pause();
+    audio.src       = '';
+    player.style.display = 'none';
+}
+</script>
 {% endblock %}
