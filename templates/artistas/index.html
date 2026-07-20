@@ -74,18 +74,12 @@
                 <td style="color:var(--em-muted);">{{ a[0] }}</td>
                 <td>
                     <div class="d-flex align-items-center gap-2">
-                        {% if a[1] == 'Arctic Monkeys' %}
-                        <img src="https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/03/3b/1e/033b1e3e-1a5e-5a5e-5a5e-5a5e5a5e5a5e/cover.jpg/32x32bb.jpg"
-                            style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;"
-                            onerror="this.style.display='none'">
-                        {% else %}
-                        <div style="width:32px;height:32px;border-radius:50%;
-                                    background:rgba(255,0,0,.15);
-                                    display:flex;align-items:center;justify-content:center;
-                                    color:var(--em-red);flex-shrink:0;">
+                       <div style="width:32px;height:32px;border-radius:50%;
+                                background:rgba(255,0,0,.15);
+                                display:flex;align-items:center;justify-content:center;
+                                color:var(--em-red);flex-shrink:0;">
                             <i class="bi bi-music-note" style="font-size:.85rem;"></i>
-                        </div>
-                        {% endif %}
+                        </div> 
                         <strong>{{ a[1] }}</strong>
                     </div>
                 </td>
