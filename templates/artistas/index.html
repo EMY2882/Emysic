@@ -35,7 +35,7 @@
         </button>
     </div>
     <audio id="audio-player" controls style="width:100%;height:32px;accent-color:#FF0000;">
-        Tu navegador no soporta audio.
+        
     </audio>
     <div id="player-estado" style="font-size:.72rem;color:#888;margin-top:.4rem;text-align:center;">
         Preview de 30 seg — iTunes API
@@ -109,7 +109,7 @@
                     <form id="del-a-{{ a[0] }}" method="POST"
                           action="{{ url_for('artista_eliminar', aid=a[0]) }}" style="display:inline;">
                         <button type="button"
-                                onclick="confirmarEliminar('del-a-{{ a[0] }}','{{ a[1] }}')"
+                                onclick="cerrarPlayer(); confirmarEliminar('del-c-{{ c[0] }}','{{ c[1] }}')"
                                 class="icon-btn" title="Desactivar"
                                 style="width:32px;height:32px;font-size:.85rem;
                                        color:#ef4444;border-color:#ef444433;">
