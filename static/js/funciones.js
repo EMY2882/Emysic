@@ -28,6 +28,7 @@ function togglePw(inputId, iconId) {
 // ── Confirmación antes de eliminar ────────────────────────
 function confirmarEliminar(formId, nombre) {
     if (confirm('¿Desactivar "' + nombre + '"?\nEsta acción se puede revertir editando el registro.')) {
+        cerrarPlayer();
         document.getElementById(formId).submit();
     }
 }
