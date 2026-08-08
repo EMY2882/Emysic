@@ -59,7 +59,7 @@
             <div class="user-avatar">{{ session.username[0].upper() if session.username else 'A' }}</div>
             <div class="user-info">
                 <p>{{ session.username or 'Admin' }}</p>
-                <small>Administrador</small>
+                <small>{{ session.rol or 'viewer' }}</small>
             </div>
         </div>
     </div>

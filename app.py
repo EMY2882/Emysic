@@ -51,7 +51,7 @@ def login():
 
         cur = mysql.connection.cursor()
         cur.execute(
-            "SELECT id, password FROM usuario WHERE username = %s AND lActivo = 1",
+            "SELECT id, password, rol FROM usuario WHERE username = %s AND lActivo = 1",
             (username,)
         )
         usuario = cur.fetchone()
@@ -63,6 +63,7 @@ def login():
             session["c_valor"]    = c_valor
             session["id_usuario"] = id_usuario
             session["username"]   = username
+            session["rol"]        = usuario[2]
             return redirect(url_for('dashboard'))
         else:
             return render_template('login.html', error="Usuario o contraseña incorrectos.")
