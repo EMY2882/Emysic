@@ -210,14 +210,15 @@ def usuario_editar(uid):
         new_pass = request.form.get('password', '').strip()
         if new_pass:
             pw_hash = generate_password_hash(new_pass)
+            username = request.form['username'].strip()
             cur.execute(
-                "UPDATE usuario SET email=%s, rol=%s, lActivo=%s, password=%s WHERE id=%s",
-                (email, rol, lActivo, pw_hash, uid)
+                "UPDATE usuario SET username=%s, email=%s, rol=%s, lActivo=%s WHERE id=%s",
+                (username, email, rol, lActivo, uid)
             )
         else:
             cur.execute(
-                "UPDATE usuario SET email=%s, rol=%s, lActivo=%s WHERE id=%s",
-                (email, rol, lActivo, uid)
+                "UPDATE usuario SET username=%s, email=%s, rol=%s, lActivo=%s, password=%s WHERE id=%s",
+                (username, email, rol, lActivo, pw_hash, uid)
             )
         mysql.connection.commit()
         cur.close()
