@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emysic — Tu música, sin límites</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/estilos.css') }}" rel="stylesheet">
+
+    <style>
+        /* ── Hero ── */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0000 50%, #0a0a0a 100%);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 60% 50%, rgba(255,0,0,.12) 0%, transparent 70%);
+        }
+
+        .hero-content { position: relative; z-index: 1; }
+
+        .hero-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: .75rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero-logo .play-btn {
+            background: #FF0000;
+            border-radius: 10px;
+            width: 52px; height: 52px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; color: #fff;
+            box-shadow: 0 0 30px rgba(255,0,0,.4);
+        }
+
+        .hero-logo span {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.2rem;
+            letter-spacing: 3px;
+            color: #f0f0f0;
+        }
+
+        .hero h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            letter-spacing: 4px;
+            line-height: 1;
+            color: #f0f0f0;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 span { color: #FF0000; }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #888;
+            max-width: 500px;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+        }
+
+        .btn-hero {
+            background: #FF0000;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: .6rem;
+            transition: all .3s;
+            box-shadow: 0 4px 20px rgba(255,0,0,.3);
+        }
+
+        .btn-hero:hover {
+            background: #cc0000;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255,0,0,.4);
+        }
+
+        .btn-hero-ghost {
+            background: transparent;
+            color: #f0f0f0;
+            border: 1px solid #2e2e2e;
+            border-radius: 50px;
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: .6rem;
+            transition: all .3s;
+        }
+
+        .btn-hero-ghost:hover {
+            border-color: #FF0000;
+            color: #FF0000;
+        }
+
+        /* ── Floating cards ── */
+        .hero-visual {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .music-card {
+            background: rgba(26,26,26,.9);
+            border: 1px solid #2e2e2e;
+            border-radius: 16px;
+            padding: 1.25rem;
+            backdrop-filter: blur(10px);
+            position: absolute;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .music-card:nth-child(1) { top: 0;    left: 0;   animation-delay: 0s;   }
+        .music-card:nth-child(2) { top: 40%;  right: 0;  animation-delay: 1.5s; }
+        .music-card:nth-child(3) { bottom: 0; left: 20%; animation-delay: 3s;   }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-12px); }
+        }
+
+        .music-card .card-icon {
+            width: 48px; height: 48px;
+            border-radius: 10px;
+            background: rgba(255,0,0,.15);
+            display: flex; align-items: center; justify-content: center;
+            color: #FF0000; font-size: 1.4rem;
+            margin-bottom: .75rem;
+        }
+
+        .music-card h6 { color: #f0f0f0; font-weight: 600; margin-bottom: .25rem; }
+        .music-card small { color: #888; font-size: .78rem; }
+
+        .center-play {
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,0,0,.2), rgba(255,0,0,.05));
+            border: 2px solid rgba(255,0,0,.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3.5rem; color: #FF0000;
+            box-shadow: 0 0 60px rgba(255,0,0,.2);
+        }
+
+        /* ── Features ── */
+        .features {
+            background: #111;
+            padding: 5rem 0;
+            border-top: 1px solid #1e1e1e;
+        }
+
+        .feature-card {
+            background: #1a1a1a;
+            border: 1px solid #2e2e2e;
+            border-radius: 16px;
+            padding: 2rem;
+            height: 100%;
+            transition: border-color .3s;
+        }
+
+        .feature-card:hover { border-color: rgba(255,0,0,.3); }
+
+        .feature-icon {
+            width: 56px; height: 56px;
+            border-radius: 14px;
+            background: rgba(255,0,0,.1);
+            display: flex; align-items: center; justify-content: center;
+            color: #FF0000; font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .feature-card h5 { color: #f0f0f0; font-weight: 600; margin-bottom: .5rem; }
+        .feature-card p  { color: #888; font-size: .88rem; line-height: 1.6; margin: 0; }
+
+        /* ── Stats ── */
+        .stats {
+            background: #0a0a0a;
+            padding: 4rem 0;
+            border-top: 1px solid #1e1e1e;
+        }
+
+        .stat-item { text-align: center; }
+        .stat-num  {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3.5rem;
+            color: #FF0000;
+            line-height: 1;
+        }
+        .stat-label { color: #888; font-size: .9rem; margin-top: .25rem; }
+
+        /* ── CTA ── */
+        .cta {
+            background: linear-gradient(135deg, #1a0000, #0a0a0a);
+            padding: 5rem 0;
+            text-align: center;
+            border-top: 1px solid #1e1e1e;
+        }
+
+        .cta h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem;
+            letter-spacing: 3px;
+            color: #f0f0f0;
+            margin-bottom: 1rem;
+        }
+
+        .cta p { color: #888; margin-bottom: 2rem; }
+
+        /* ── Navbar ── */
+        .landing-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(10,10,10,.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #1e1e1e;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .landing-nav .nav-brand {
+            display: flex; align-items: center; gap: .5rem;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem; letter-spacing: 2px;
+            color: #f0f0f0; text-decoration: none;
+        }
+
+        .landing-nav .nav-brand .dot { color: #FF0000; }
+
+        .landing-nav .nav-acceder {
+            background: #FF0000;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: .5rem 1.5rem;
+            font-size: .88rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background .2s;
+        }
+
+        .landing-nav .nav-acceder:hover { background: #cc0000; color: #fff; }
+
+        /* ── Footer ── */
+        footer {
+            background: #080808;
+            border-top: 1px solid #1a1a1a;
+            padding: 2rem;
+            text-align: center;
+            color: #444;
+            font-size: .82rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="landing-nav">
+    <a href="{{ url_for('landing') }}" class="nav-brand">
+        <span style="color:#FF0000;">▶</span> EMYSIC<span class="dot">.</span>
+    </a>
+    <a href="{{ url_for('login') }}" class="nav-acceder">
+        <i class="bi bi-play-fill me-1"></i> Acceder
+    </a>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero" style="padding-top:80px;">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 hero-content">
+                <div class="hero-logo">
+                    <div class="play-btn">▶</div>
+                    <span>EMYSIC</span>
+                </div>
+                <h1>Tu música,<br><span>sin límites.</span></h1>
+                <p>
+                    Plataforma de streaming musical con los mejores artistas,
+                    géneros y canciones del mundo. Administra tu catálogo
+                    de forma fácil y profesional.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{{ url_for('login') }}" class="btn-hero">
+                        <i class="bi bi-play-circle-fill"></i> Acceder al sistema
+                    </a>
+                    <a href="#features" class="btn-hero-ghost">
+                        <i class="bi bi-info-circle"></i> Saber más
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 hero-visual" style="height:400px;">
+                <div class="center-play">▶</div>
+                <div class="music-card" style="min-width:160px;">
+                    <div class="card-icon"><i class="bi bi-music-note-beamed"></i></div>
+                    <h6>Artistas</h6>
+                    <small>Catálogo completo</small>
+                </div>
+                <div class="music-card" style="min-width:160px;">
+                    <div class="card-icon"><i class="bi bi-music-note-list"></i></div>
+                    <h6>Canciones</h6>
+                    <small>Con preview de audio</small>
+                </div>
+                <div class="music-card" style="min-width:160px;">
+                    <div class="card-icon"><i class="bi bi-tag-fill"></i></div>
+                    <h6>Géneros</h6>
+                    <small>Pop, Rock, K-Pop y más</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Stats ── -->
+<section class="stats">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3">
+                <div class="stat-num">10+</div>
+                <div class="stat-label">Artistas</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-num">10+</div>
+                <div class="stat-label">Canciones</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-num">6</div>
+                <div class="stat-label">Géneros</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-num">4</div>
+                <div class="stat-label">Catálogos</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Features ── -->
+<section class="features" id="features">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;
+                       letter-spacing:3px;color:#f0f0f0;">
+                Todo lo que necesitas
+            </h2>
+            <p style="color:#888;max-width:500px;margin:0 auto;">
+                Un panel de administración completo para gestionar tu plataforma de streaming.
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                    <h5>Sesiones seguras</h5>
+                    <p>Login con tokens únicos y duración configurable. Tu sesión expira automáticamente.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="bi bi-people-fill"></i></div>
+                    <h5>Gestión de usuarios</h5>
+                    <p>Alta, baja y cambios de usuarios con roles de administrador, editor y viewer.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="bi bi-music-note-beamed"></i></div>
+                    <h5>Catálogo musical</h5>
+                    <p>Artistas, canciones y géneros con CRUD completo y preview de audio vía iTunes API.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="bi bi-gear-fill"></i></div>
+                    <h5>Configuración</h5>
+                    <p>Parámetros del sistema editables desde la interfaz, incluyendo el tiempo del token.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta">
+    <div class="container">
+        <h2>¿Listo para empezar?</h2>
+        <p>Accede al panel de administración con tus credenciales.</p>
+        <a href="{{ url_for('login') }}" class="btn-hero" style="font-size:1.1rem;padding:1.1rem 3rem;">
+            <i class="bi bi-play-circle-fill"></i> Entrar a Emysic
+        </a>
+    </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+    <div>
+        <span style="color:#FF0000;">▶</span> EMYSIC &copy; 2025 — Proyecto Escolar
+        &nbsp;·&nbsp;
+        Desarrollado con Flask + Bootstrap 5 + MySQL
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
