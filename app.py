@@ -382,7 +382,7 @@ def canciones():
         FROM cancion c
         JOIN artista a ON a.id = c.id_artista
         JOIN genero  g ON g.id = c.id_genero
-        ORDER BY c.titulo
+        ORDER BY c.id
     """)
     lista = cur.fetchall()
     cur.close()
