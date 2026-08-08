@@ -296,6 +296,159 @@ def config_editar(pid):
     cur.close()
     return render_template('config/form.html', param=param)
 
+# ── Catálogo: Géneros ────────────────────────────────────────
+@app.route('/generos')
+@requiere_sesion
+def generos():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, nombre, descripcion, lActivo, fecha_alta FROM genero ORDER BY nombre")
+    lista = cur.fetchall()
+    cur.close()
+    return render_template('generos/index.html', generos=lista)
+
+
+@app.route('/generos/nuevo', methods=['GET', 'POST'])
+@requiere_sesion
+def genero_nuevo():
+    if request.method == 'POST':
+        nombre      = request.form['nombre'].strip()
+        descripcion = request.form.get('descripcion', '').strip()
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT INTO genero (nombre, descripcion) VALUES (%s,%s)", (nombre, descripcion))
+            mysql.connection.commit()
+            cur.close()
+        except Exception as e:
+            return render_template('generos/form.html', genero=None, accion='Nuevo', error=str(e))
+        return redirect(url_for('generos'))
+    return render_template('generos/form.html', genero=None, accion='Nuevo', error=None)
+
+
+@app.route('/generos/editar/<int:gid>', methods=['GET', 'POST'])
+@requiere_sesion
+def genero_editar(gid):
+    cur = mysql.connection.cursor()
+    if request.method == 'POST':
+        nombre      = request.form['nombre'].strip()
+        descripcion = request.form.get('descripcion', '').strip()
+        lActivo     = 1 if request.form.get('lActivo') else 0
+        cur.execute(
+            "UPDATE genero SET nombre=%s, descripcion=%s, lActivo=%s WHERE id=%s",
+            (nombre, descripcion, lActivo, gid)
+        )
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('generos'))
+    cur.execute("SELECT * FROM genero WHERE id=%s", (gid,))
+    genero = cur.fetchone()
+    cur.close()
+    return render_template('generos/form.html', genero=genero, accion='Editar', error=None)
+
+
+@app.route('/generos/eliminar/<int:gid>', methods=['POST'])
+@requiere_sesion
+def genero_eliminar(gid):
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE genero SET lActivo = 0 WHERE id = %s", (gid,))
+    mysql.connection.commit()
+    cur.close()
+    return redirect(url_for('generos'))
+
+
+# ── Catálogo: Canciones ──────────────────────────────────────
+@app.route('/canciones')
+@requiere_sesion
+def canciones():
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT c.id, c.titulo, c.id_artista, c.id_genero, c.album, c.duracion,
+               a.nombre AS artista, g.nombre AS genero, c.lActivo
+        FROM cancion c
+        JOIN artista a ON a.id = c.id_artista
+        JOIN genero  g ON g.id = c.id_genero
+        ORDER BY c.titulo
+    """)
+    lista = cur.fetchall()
+    cur.close()
+    return render_template('canciones/index.html', canciones=lista)
+
+
+@app.route('/canciones/nueva', methods=['GET', 'POST'])
+@requiere_sesion
+def cancion_nueva():
+    cur = mysql.connection.cursor()
+    if request.method == 'POST':
+        titulo     = request.form['titulo'].strip()
+        id_artista = request.form['id_artista']
+        id_genero  = request.form['id_genero']
+        album      = request.form.get('album', '').strip()
+        duracion   = request.form.get('duracion', '').strip()
+        try:
+            cur.execute(
+                "INSERT INTO cancion (titulo, id_artista, id_genero, album, duracion) VALUES (%s,%s,%s,%s,%s)",
+                (titulo, id_artista, id_genero, album, duracion)
+            )
+            mysql.connection.commit()
+            cur.close()
+        except Exception as e:
+            cur.execute("SELECT id, nombre FROM artista WHERE lActivo=1 ORDER BY nombre")
+            artistas = cur.fetchall()
+            cur.execute("SELECT id, nombre FROM genero WHERE lActivo=1 ORDER BY nombre")
+            generos = cur.fetchall()
+            cur.close()
+            return render_template('canciones/form.html', cancion=None, accion='Nueva',
+                                   artistas=artistas, generos=generos, error=str(e))
+        return redirect(url_for('canciones'))
+    cur.execute("SELECT id, nombre FROM artista WHERE lActivo=1 ORDER BY nombre")
+    artistas = cur.fetchall()
+    cur.execute("SELECT id, nombre FROM genero WHERE lActivo=1 ORDER BY nombre")
+    generos = cur.fetchall()
+    cur.close()
+    return render_template('canciones/form.html', cancion=None, accion='Nueva',
+                           artistas=artistas, generos=generos, error=None)
+
+
+@app.route('/canciones/editar/<int:cid>', methods=['GET', 'POST'])
+@requiere_sesion
+def cancion_editar(cid):
+    cur = mysql.connection.cursor()
+    if request.method == 'POST':
+        titulo     = request.form['titulo'].strip()
+        id_artista = request.form['id_artista']
+        id_genero  = request.form['id_genero']
+        album      = request.form.get('album', '').strip()
+        duracion   = request.form.get('duracion', '').strip()
+        lActivo    = 1 if request.form.get('lActivo') else 0
+        cur.execute("""
+            UPDATE cancion
+            SET titulo=%s, id_artista=%s, id_genero=%s, album=%s, duracion=%s, lActivo=%s
+            WHERE id=%s
+        """, (titulo, id_artista, id_genero, album, duracion, lActivo, cid))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('canciones'))
+    cur.execute(
+        "SELECT id, titulo, id_artista, id_genero, album, duracion, lActivo FROM cancion WHERE id=%s",
+        (cid,)
+    )
+    cancion = cur.fetchone()
+    cur.execute("SELECT id, nombre FROM artista WHERE lActivo=1 ORDER BY nombre")
+    artistas = cur.fetchall()
+    cur.execute("SELECT id, nombre FROM genero WHERE lActivo=1 ORDER BY nombre")
+    generos = cur.fetchall()
+    cur.close()
+    return render_template('canciones/form.html', cancion=cancion, accion='Editar',
+                           artistas=artistas, generos=generos, error=None)
+
+
+@app.route('/canciones/eliminar/<int:cid>', methods=['POST'])
+@requiere_sesion
+def cancion_eliminar(cid):
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE cancion SET lActivo = 0 WHERE id = %s", (cid,))
+    mysql.connection.commit()
+    cur.close()
+    return redirect(url_for('canciones'))
 
 if __name__ == '__main__':
     app.run(port=3000, debug=True)

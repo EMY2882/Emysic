@@ -1,0 +1,106 @@
+{% extends 'layout.html' %}
+{% block title %}{{ accion }} Canción — Emysic{% endblock %}
+{% block topbar_title %}{{ accion }} Canción{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{{ url_for('canciones') }}" class="icon-btn" title="Volver"
+       style="width:36px;height:36px;">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h1 class="page-heading">{{ accion }} Canción</h1>
+    </div>
+</div>
+
+<div class="em-card" style="max-width:580px;">
+    {% if error %}
+    <div class="alert-em mb-3">
+        <i class="bi bi-exclamation-circle me-2"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label">
+                <i class="bi bi-music-note me-1"></i> Título *
+            </label>
+            <input type="text" name="titulo" class="form-control"
+                   value="{{ cancion[1] if cancion else '' }}"
+                   required placeholder="ej. Bad Guy">
+        </div>
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">
+                    <i class="bi bi-person me-1"></i> Artista *
+                </label>
+                <select name="id_artista" class="form-select" required>
+                    <option value="">Seleccionar...</option>
+                    {% for a in artistas %}
+                    <option value="{{ a[0] }}"
+                        {{ 'selected' if cancion and cancion[2] == a[0] }}>
+                        {{ a[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">
+                    <i class="bi bi-tag me-1"></i> Género *
+                </label>
+                <select name="id_genero" class="form-select" required>
+                    <option value="">Seleccionar...</option>
+                    {% for g in generos %}
+                    <option value="{{ g[0] }}"
+                        {{ 'selected' if cancion and cancion[3] == g[0] }}>
+                        {{ g[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row g-3 mb-3">
+            <div class="col-md-8">
+                <label class="form-label">
+                    <i class="bi bi-disc me-1"></i> Álbum
+                </label>
+                <input type="text" name="album" class="form-control"
+                       value="{{ cancion[4] if cancion else '' }}"
+                       placeholder="ej. When We All Fall Asleep">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">
+                    <i class="bi bi-clock me-1"></i> Duración
+                </label>
+                <input type="text" name="duracion" class="form-control"
+                       value="{{ cancion[5] if cancion else '' }}"
+                       placeholder="ej. 3:14">
+            </div>
+        </div>
+        {% if cancion %}
+        <div class="mb-4">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="lActivo"
+                       id="lActivo" {{ 'checked' if cancion[6] }}
+                       style="background-color:#111;border-color:#2e2e2e;">
+                <label class="form-check-label form-label mb-0" for="lActivo">
+                    Canción activa
+                </label>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger"
+                    style="border-radius:8px;padding:.55rem 1.4rem;">
+                <i class="bi bi-check-lg me-1"></i> {{ accion }}
+            </button>
+            <a href="{{ url_for('canciones') }}" class="btn btn-sm"
+               style="background:var(--em-surface);border:1px solid var(--em-border);
+                      color:var(--em-text);border-radius:8px;padding:.55rem 1.2rem;">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,3 +1,8 @@
+-- ============================================================
+--  Emysic — Base de datos MySQL
+--  Panel de administración tema YouTube Music
+-- ============================================================
+
 CREATE DATABASE IF NOT EXISTS emysic_db
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
@@ -34,14 +39,33 @@ CREATE TABLE usuario (
     fecha_alta DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Usuario: emy  |  Contraseña: Admin1234!
 INSERT INTO usuario (username, email, password, rol) VALUES
   ('emy', 'suemyum.ms24@universidadupp.edu.mx',
    'scrypt:32768:8:1$fXAMOJ9T1WKo2pHa$b16747964668d426c0fe93690bd6921570f43d90fa45cb8abf6bed26b9d595afaed2773dce517bdc35d4218a6f0f5c8282f16c7375a4c8d514606d39f893225e',
    'admin');
 
 -- ------------------------------------------------------------
--- 3. Artistas
+-- 3. Géneros musicales
+-- ------------------------------------------------------------
+DROP TABLE IF EXISTS genero;
+CREATE TABLE genero (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    nombre      VARCHAR(100) NOT NULL UNIQUE,
+    descripcion TEXT,
+    lActivo     TINYINT(1) NOT NULL DEFAULT 1,
+    fecha_alta  DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO genero (nombre, descripcion) VALUES
+  ('Pop',         'Música popular de alcance masivo con melodías pegajosas.'),
+  ('Rock',        'Género caracterizado por guitarras eléctricas y batería.'),
+  ('Hip-Hop',     'Género urbano basado en rimas y beats.'),
+  ('K-Pop',       'Pop coreano con alto impacto visual y coreografías.'),
+  ('Electrónica', 'Música generada con sintetizadores y producción digital.'),
+  ('R&B',         'Rhythm and Blues, mezcla de soul, funk y pop.');
+
+-- ------------------------------------------------------------
+-- 4. Artistas
 -- ------------------------------------------------------------
 DROP TABLE IF EXISTS artista;
 CREATE TABLE artista (
@@ -60,10 +84,39 @@ INSERT INTO artista (nombre, genero, pais, bio) VALUES
   ('BTS',            'K-Pop',             'Corea del Sur', 'Grupo de K-Pop más influyente a nivel mundial con millones de fanáticos.'),
   ('Dua Lipa',       'Pop / Electrónica',  'Reino Unido',  'Cantante reconocida por sus éxitos de pop dance a nivel global.'),
   ('Kendrick Lamar', 'Hip-Hop',           'EE.UU.',       'Rapero ganador del Premio Pulitzer, considerado uno de los mejores del género.'),
-  ('Coldplay',       'Rock / Pop',        'Reino Unido',  'Banda británica reconocida mundialmente por sus emotivos conciertos y éxitos globales.');
+  ('Coldplay',       'Rock / Pop',        'Reino Unido',  'Banda británica reconocida por sus emotivos conciertos y éxitos globales.');
 
 -- ------------------------------------------------------------
--- 4. Tokens de sesión
+-- 5. Canciones
+-- ------------------------------------------------------------
+DROP TABLE IF EXISTS cancion;
+CREATE TABLE cancion (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    titulo     VARCHAR(200) NOT NULL,
+    id_artista INT NOT NULL,
+    id_genero  INT NOT NULL,
+    album      VARCHAR(150),
+    duracion   VARCHAR(10),
+    lActivo    TINYINT(1) NOT NULL DEFAULT 1,
+    fecha_alta DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_artista) REFERENCES artista(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_genero)  REFERENCES genero(id)  ON DELETE CASCADE
+);
+
+INSERT INTO cancion (titulo, id_artista, id_genero, album, duracion) VALUES
+  ('Bad Guy',           1, 1, 'When We All Fall Asleep', '3:14'),
+  ('Happier Than Ever', 1, 1, 'Happier Than Ever',       '4:58'),
+  ('R U Mine?',         2, 2, 'AM',                      '3:21'),
+  ('Do I Wanna Know?',  2, 2, 'AM',                      '4:32'),
+  ('Dynamite',          3, 4, 'BE',                      '3:19'),
+  ('Butter',            3, 4, 'Butter',                  '2:44'),
+  ('Levitating',        4, 5, 'Future Nostalgia',        '3:23'),
+  ('Blinding Lights',   5, 6, 'After Hours',             '3:20'),
+  ('HUMBLE.',           5, 3, 'DAMN.',                   '2:57'),
+  ('The Scientist',     6, 2, 'A Rush of Blood',         '5:09');
+
+-- ------------------------------------------------------------
+-- 6. Tokens de sesión
 -- ------------------------------------------------------------
 DROP TABLE IF EXISTS token;
 CREATE TABLE token (
