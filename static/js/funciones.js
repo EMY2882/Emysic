@@ -54,7 +54,7 @@ function actualizarPill(segundos) {
     texto.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 
     pill.classList.remove('expiring', 'expired');
-    if (segundos <= 0)              pill.classList.add('expired');
+    if (segundos <= 0)                   pill.classList.add('expired');
     else if (segundos <= SEGUNDOS_AVISO) pill.classList.add('expiring');
 }
 
@@ -107,7 +107,6 @@ function continuarSesion() {
                 const modal = document.getElementById('modal-sesion');
                 if (modal) modal.style.display = 'none';
                 modalMostrado = false;
-                // Re-sincronizar con servidor
                 verificarSesion();
             } else {
                 window.location.href = '/login?expirado=1';
@@ -118,7 +117,7 @@ function continuarSesion() {
         });
 }
 
-// ── Verificar sesión en servidor (cada 2 minutos) ─────────
+// ── Verificar sesión en servidor (cada 5 minutos) ─────────
 function verificarSesion() {
     fetch('/sesion-estado')
         .then(r => r.json())
@@ -140,7 +139,7 @@ function renovarManual() {
         .then(r => r.json())
         .then(function(data) {
             if (data.ok) {
-                verificarSesion();    // re-sincronizar
+                verificarSesion();
                 mostrarToast('Sesión renovada correctamente.', 'success');
             }
         });
@@ -166,15 +165,17 @@ function mostrarToast(mensaje, tipo) {
     setTimeout(function() { t.remove(); }, 2500);
 }
 
-// ── Auto-cerrar alertas Flash ─────────────────────────────
+// ── Al cargar la página ───────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-    // Detener cualquier audio al cargar la página
+
+    // Detener audio al cargar
     const audio = document.getElementById('audio-player');
     if (audio) {
         audio.pause();
         audio.src = '';
     }
 
+    // Auto-cerrar alertas Flash
     document.querySelectorAll('.alert-dismissible').forEach(function(alert) {
         setTimeout(function() {
             const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
@@ -188,12 +189,5 @@ document.addEventListener('DOMContentLoaded', function() {
         verificarSesion();
         watcherInterval = setInterval(verificarSesion, 300000);
     }
-});
 
-    // Iniciar watcher de sesión si estamos logueados
-    const pill = document.getElementById('token-pill');
-    if (pill) {
-        verificarSesion();                           // inmediato
-        watcherInterval = setInterval(verificarSesion, 120000); // cada 2 minutos
-    }
 });
