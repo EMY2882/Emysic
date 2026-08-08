@@ -167,12 +167,27 @@ function mostrarToast(mensaje, tipo) {
 
 // ── Auto-cerrar alertas Flash ─────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
+    // Detener cualquier audio al cargar la página
+    const audio = document.getElementById('audio-player');
+    if (audio) {
+        audio.pause();
+        audio.src = '';
+    }
+
     document.querySelectorAll('.alert-dismissible').forEach(function(alert) {
         setTimeout(function() {
             const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
             if (bsAlert) bsAlert.close();
         }, 4000);
     });
+
+    // Iniciar watcher de sesión si estamos logueados
+    const pill = document.getElementById('token-pill');
+    if (pill) {
+        verificarSesion();
+        watcherInterval = setInterval(verificarSesion, 300000);
+    }
+});
 
     // Iniciar watcher de sesión si estamos logueados
     const pill = document.getElementById('token-pill');
