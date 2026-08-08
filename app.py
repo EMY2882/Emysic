@@ -245,7 +245,7 @@ def usuario_eliminar(uid):
 @requiere_sesion
 def artistas():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, nombre, genero, pais, lActivo FROM artista ORDER BY nombre")
+    cur.execute("SELECT id, nombre, genero, pais, lActivo FROM artista ORDER BY id")
     lista = cur.fetchall()
     cur.close()
     return render_template('artistas/index.html', artistas=lista)
