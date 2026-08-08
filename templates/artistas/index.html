@@ -93,7 +93,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    <button onclick="reproducirPreview('{{ a[1] }}')"
+                    <button onclick="{% if a[4] %}reproducirPreview('{{ a[1] }}'){% else %}mostrarToast('Este artista está inactivo.', 'warning'){% endif %}"
                             class="icon-btn" title="Reproducir preview"
                             style="width:32px;height:32px;font-size:.85rem;
                                    color:#22c55e;border-color:#22c55e33;">

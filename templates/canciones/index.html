@@ -101,7 +101,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    <button onclick="reproducirPreview('{{ c[1] }}', '{{ c[6] }}')"
+                    <button onclick="{% if c[8] %}reproducirPreview('{{ c[1] }}', '{{ c[6] }}'){% else %}mostrarToast('Esta canción está inactiva.', 'warning'){% endif %}"
                             class="icon-btn" title="Reproducir preview"
                             style="width:32px;height:32px;font-size:.85rem;
                                    color:#22c55e;border-color:#22c55e33;">
