@@ -1,3 +1,7 @@
+# ============================================================
+#  Emysic — app.py
+#  Panel de administración tema YouTube Music
+# ============================================================
 import functools
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
@@ -17,7 +21,7 @@ app.config['MYSQL_PORT']     = 3306
 mysql = MySQL(app)
 
 
-# ── Decorador de sesión ──────────────────────────────────────
+# ── Decoradores ──────────────────────────────────────────────
 def requiere_sesion(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
@@ -32,10 +36,29 @@ def requiere_sesion(f):
     return wrapper
 
 
+def solo_admin(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        if session.get("rol") != "admin":
+            return render_template('acceso_denegado.html'), 403
+        return f(*args, **kwargs)
+    return wrapper
+
+
+def admin_o_editor(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        if session.get("rol") not in ["admin", "editor"]:
+            return render_template('acceso_denegado.html'), 403
+        return f(*args, **kwargs)
+    return wrapper
+
+
 # ── Rutas públicas ───────────────────────────────────────────
 @app.route('/')
 def index():
     return redirect(url_for('landing'))
+
 
 @app.route('/landing')
 def landing():
@@ -59,7 +82,7 @@ def login():
 
         if usuario and check_password_hash(usuario[1], password):
             id_usuario = usuario[0]
-            c_valor = crear_sesion(mysql, id_usuario)
+            c_valor    = crear_sesion(mysql, id_usuario)
             session["c_valor"]    = c_valor
             session["id_usuario"] = id_usuario
             session["username"]   = username
@@ -120,15 +143,23 @@ def dashboard():
     total_usuarios = cur.fetchone()[0]
     cur.execute("SELECT COUNT(*) FROM artista WHERE lActivo = 1")
     total_artistas = cur.fetchone()[0]
-    cur.execute("SELECT valor FROM config_sistema WHERE clave = 'TOKEN_MINUTOS'")
+    cur.execute("SELECT COUNT(*) FROM genero WHERE lActivo = 1")
+    total_generos = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM cancion WHERE lActivo = 1")
+    total_canciones = cur.fetchone()[0]
+    cur.execute("SELECT param_value FROM system_config WHERE param_key='TOKEN_LIFETIME_MINUTES'" if False else
+                "SELECT valor FROM config_sistema WHERE clave = 'TOKEN_MINUTOS'")
     row = cur.fetchone()
     token_minutos = int(row[0]) if row else 30
     cur.close()
 
     return render_template('dashboard.html',
                            username=session.get('username', 'Admin'),
+                           rol=session.get('rol', 'viewer'),
                            total_usuarios=total_usuarios,
                            total_artistas=total_artistas,
+                           total_generos=total_generos,
+                           total_canciones=total_canciones,
                            token_minutos=token_minutos)
 
 
@@ -145,6 +176,7 @@ def usuarios():
 
 @app.route('/usuarios/nuevo', methods=['GET', 'POST'])
 @requiere_sesion
+@solo_admin
 def usuario_nuevo():
     if request.method == 'POST':
         username = request.form['username'].strip()
@@ -168,6 +200,7 @@ def usuario_nuevo():
 
 @app.route('/usuarios/editar/<int:uid>', methods=['GET', 'POST'])
 @requiere_sesion
+@solo_admin
 def usuario_editar(uid):
     cur = mysql.connection.cursor()
     if request.method == 'POST':
@@ -197,6 +230,7 @@ def usuario_editar(uid):
 
 @app.route('/usuarios/eliminar/<int:uid>', methods=['POST'])
 @requiere_sesion
+@solo_admin
 def usuario_eliminar(uid):
     cur = mysql.connection.cursor()
     cur.execute("UPDATE usuario SET lActivo = 0 WHERE id = %s", (uid,))
@@ -218,6 +252,7 @@ def artistas():
 
 @app.route('/artistas/nuevo', methods=['GET', 'POST'])
 @requiere_sesion
+@admin_o_editor
 def artista_nuevo():
     if request.method == 'POST':
         nombre  = request.form['nombre'].strip()
@@ -233,13 +268,14 @@ def artista_nuevo():
             mysql.connection.commit()
             cur.close()
         except Exception as e:
-            return render_template('artistas/form.html', artista=None, accion='Nuevo', error=str(e))
+            return render_template('artistas/form.html', artista=None, accion='Crear', error=str(e))
         return redirect(url_for('artistas'))
-    return render_template('artistas/form.html', artista=None, accion='Nuevo', error=None)
+    return render_template('artistas/form.html', artista=None, accion='Crear', error=None)
 
 
 @app.route('/artistas/editar/<int:aid>', methods=['GET', 'POST'])
 @requiere_sesion
+@admin_o_editor
 def artista_editar(aid):
     cur = mysql.connection.cursor()
     if request.method == 'POST':
@@ -263,6 +299,7 @@ def artista_editar(aid):
 
 @app.route('/artistas/eliminar/<int:aid>', methods=['POST'])
 @requiere_sesion
+@solo_admin
 def artista_eliminar(aid):
     cur = mysql.connection.cursor()
     cur.execute("UPDATE artista SET lActivo = 0 WHERE id = %s", (aid,))
@@ -270,36 +307,6 @@ def artista_eliminar(aid):
     cur.close()
     return redirect(url_for('artistas'))
 
-
-# ── Catálogo: Configuración del sistema ─────────────────────
-@app.route('/config')
-@requiere_sesion
-def config():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT id, clave, valor, descripcion FROM config_sistema ORDER BY clave")
-    params = cur.fetchall()
-    cur.close()
-    return render_template('config/index.html', params=params)
-
-
-@app.route('/config/editar/<int:pid>', methods=['GET', 'POST'])
-@requiere_sesion
-def config_editar(pid):
-    cur = mysql.connection.cursor()
-    if request.method == 'POST':
-        valor       = request.form['valor'].strip()
-        descripcion = request.form.get('descripcion', '').strip()
-        cur.execute(
-            "UPDATE config_sistema SET valor=%s, descripcion=%s WHERE id=%s",
-            (valor, descripcion, pid)
-        )
-        mysql.connection.commit()
-        cur.close()
-        return redirect(url_for('config'))
-    cur.execute("SELECT * FROM config_sistema WHERE id=%s", (pid,))
-    param = cur.fetchone()
-    cur.close()
-    return render_template('config/form.html', param=param)
 
 # ── Catálogo: Géneros ────────────────────────────────────────
 @app.route('/generos')
@@ -314,6 +321,7 @@ def generos():
 
 @app.route('/generos/nuevo', methods=['GET', 'POST'])
 @requiere_sesion
+@admin_o_editor
 def genero_nuevo():
     if request.method == 'POST':
         nombre      = request.form['nombre'].strip()
@@ -331,6 +339,7 @@ def genero_nuevo():
 
 @app.route('/generos/editar/<int:gid>', methods=['GET', 'POST'])
 @requiere_sesion
+@admin_o_editor
 def genero_editar(gid):
     cur = mysql.connection.cursor()
     if request.method == 'POST':
@@ -352,6 +361,7 @@ def genero_editar(gid):
 
 @app.route('/generos/eliminar/<int:gid>', methods=['POST'])
 @requiere_sesion
+@solo_admin
 def genero_eliminar(gid):
     cur = mysql.connection.cursor()
     cur.execute("UPDATE genero SET lActivo = 0 WHERE id = %s", (gid,))
@@ -380,6 +390,7 @@ def canciones():
 
 @app.route('/canciones/nueva', methods=['GET', 'POST'])
 @requiere_sesion
+@admin_o_editor
 def cancion_nueva():
     cur = mysql.connection.cursor()
     if request.method == 'POST':
@@ -415,6 +426,7 @@ def cancion_nueva():
 
 @app.route('/canciones/editar/<int:cid>', methods=['GET', 'POST'])
 @requiere_sesion
+@admin_o_editor
 def cancion_editar(cid):
     cur = mysql.connection.cursor()
     if request.method == 'POST':
@@ -448,12 +460,46 @@ def cancion_editar(cid):
 
 @app.route('/canciones/eliminar/<int:cid>', methods=['POST'])
 @requiere_sesion
+@solo_admin
 def cancion_eliminar(cid):
     cur = mysql.connection.cursor()
     cur.execute("UPDATE cancion SET lActivo = 0 WHERE id = %s", (cid,))
     mysql.connection.commit()
     cur.close()
     return redirect(url_for('canciones'))
+
+
+# ── Catálogo: Configuración del sistema ─────────────────────
+@app.route('/config')
+@requiere_sesion
+def config():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, clave, valor, descripcion FROM config_sistema ORDER BY clave")
+    params = cur.fetchall()
+    cur.close()
+    return render_template('config/index.html', params=params)
+
+
+@app.route('/config/editar/<int:pid>', methods=['GET', 'POST'])
+@requiere_sesion
+@solo_admin
+def config_editar(pid):
+    cur = mysql.connection.cursor()
+    if request.method == 'POST':
+        valor       = request.form['valor'].strip()
+        descripcion = request.form.get('descripcion', '').strip()
+        cur.execute(
+            "UPDATE config_sistema SET valor=%s, descripcion=%s WHERE id=%s",
+            (valor, descripcion, pid)
+        )
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('config'))
+    cur.execute("SELECT * FROM config_sistema WHERE id=%s", (pid,))
+    param = cur.fetchone()
+    cur.close()
+    return render_template('config/form.html', param=param)
+
 
 if __name__ == '__main__':
     app.run(port=3000, debug=True)

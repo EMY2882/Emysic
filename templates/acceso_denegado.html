@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+{% block title %}Acceso denegado — Emysic{% endblock %}
+{% block topbar_title %}Acceso denegado{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <div style="font-size:4rem;color:var(--em-red);">
+        <i class="bi bi-shield-lock-fill"></i>
+    </div>
+    <h2 style="font-family:'Bebas Neue',sans-serif;letter-spacing:2px;margin-top:1rem;color:#f0f0f0;">
+        Acceso denegado
+    </h2>
+    <p style="color:var(--em-muted);margin-top:.5rem;">
+        No tienes permisos suficientes para acceder a esta sección.
+    </p>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-danger mt-3"
+       style="border-radius:8px;">
+        <i class="bi bi-arrow-left me-1"></i> Volver al dashboard
+    </a>
+</div>
+{% endblock %}
